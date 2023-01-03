@@ -1,0 +1,90 @@
+[tool.poetry]
+name = "iris"
+version = "0.1.0"
+description = ""
+authors = ["Victor I. Afolabi <javafolabi@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = ">=3.9"
+polars = {version = "^0.15.11", extras = ["all"]}
+
+[tool.poetry.group.dev.dependencies]
+jupyterlab = "^3.5.2"
+pydocstyle = {version = "^6.2.1", extras = ["toml"]}
+docformatter = {version = "^1.5.1", extras = ["tomli"], python = "^3.9"}
+autopep8 = "^2.0.1"
+mypy = "^0.991"
+pre-commit = "^2.21.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.autopep8]
+recursive = true
+# in-place = true
+diff = true
+max_line_length = 120
+agressive = 3
+
+# Docformatter.
+[tool.docformatter]
+in-place = true
+recursive = true
+blank = true
+close-quotes-on-newline = true
+
+[tool.pydocstyle]
+convention = "google"
+add_ignore = [
+  # Missing docstring in public module.
+  "D100",
+  # Missing docstring in public class.
+  "D101",
+  # Missing docstring in public package.
+  "D104",
+  # No blank line allowed after function docstring.
+  "D202",
+  # 1 blank line required between summary line and description.
+  "D205",
+  # First line should end with a period, question mark, or exclamation point.
+  "D415",
+]
+
+# Style hinting.
+[tool.mypy]
+files = [
+  "iris/",
+]
+exclude = [
+  "src",
+  "examples/",
+  "data",
+  "tests/",
+  "venv/",
+]
+namespace_packages = true
+explicit_package_bases = true
+strict = true
+check_untyped_defs = true
+ignore_missing_imports = true
+disallow_any_generics = true
+disallow_incomplete_defs = true
+implicit_reexport = false
+no_implicit_optional = true
+show_error_codes = true
+show_column_numbers = true
+warn_unused_configs = true
+warn_unused_ignores = true
+warn_return_any = true
+warn_unreachable = true
+disallow_subclassing_any = false
+disallow_untyped_decorators = false
+
+# Pyright Type Checking.
+[tool.pyright]
+reportOptionalCall = "none"
+reportGeneralTypeIssues = "none"
+reportOptionalMemberAccess = "none"
+
