@@ -7,7 +7,7 @@
 
 # Iris
 
-Load and process the iris dataset.
+Experiment to test loading and processing iris dataset in Rust and using the processed data in Python for Machine Learning tasks.
 
 ## Contribution
 
