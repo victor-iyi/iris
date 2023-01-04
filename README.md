@@ -7,7 +7,27 @@
 
 # Iris
 
-Experiment to test loading and processing iris dataset in Rust and using the processed data in Python for Machine Learning tasks.
+Experiment to test loading and processing iris dataset in Rust and using the
+processed data in Python for Machine Learning tasks.
+
+## Method
+
+Load and process the  iris dataset with `polars`, a fast, Rust library for
+working with `DataFrame`s.
+
+DataFrame is split into features and labels, and labels are converted into
+categorical values. The result will be two dataframe *(one for features & one
+for label)*.
+
+These `DataFrame`s are then converted into an `ndarray`, which will be attempted
+to send to a Python process or an API or just saved to disk in a way that can be
+read natively by Python.
+
+## Examples
+
+There's an [`examples/`] folder containing both Rust & Python notebooks.
+
+[`examples/`]: ./examples/
 
 ## Contribution
 
