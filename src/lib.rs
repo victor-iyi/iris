@@ -27,28 +27,25 @@ pub fn save_df(df: &mut DataFrame, path: &Path) -> Result<()> {
 
 /// Load Iris dataset into a dataframe from file path if given, otherwise,
 /// download it.
-pub fn load_data(path: Option<&Path>) -> Result<DataFrame> {
-  // Datatypes.
-  let dtypes: &[DataType; 5] = &[
-    DataType::Float64,           // sepal_length
-    DataType::Float64,           // sepal_width
-    DataType::Float64,           // petal_length
-    DataType::Float64,           // petal_width
-    DataType::Categorical(None), // species
-  ];
+pub fn load_data(path: Option<&Path>) -> Result<LazyFrame> {
+  // Overwrite the "species" schema.
+  let fields = [Field::new("species", DataType::Categorical(None))];
+  let schema = Schema::from(fields.into_iter());
 
   let df = match path {
     // Load data from file (if it exists).
     Some(p) if p.is_file() => {
       println!("Loading data from {}", p.display());
-      CsvReader::from_path(&p)?
+
+      LazyCsvReader::new(&p)
         .has_header(true)
-        .with_dtypes_slice(Some(dtypes))
+        .with_dtype_overwrite(Some(&schema))
         .finish()?
     }
+    // Download data.
     _ => {
-      // Download data.
       println!("Downloading data...");
+
       let data: Vec<u8> = Client::new()
         .get("https://j.mp/iriscsv")
         .send()?
@@ -58,8 +55,9 @@ pub fn load_data(path: Option<&Path>) -> Result<DataFrame> {
 
       CsvReader::new(Cursor::new(data))
         .has_header(true)
-        .with_dtypes_slice(Some(dtypes))
+        .with_dtypes(Some(&schema))
         .finish()?
+        .lazy()
     }
   };
 
