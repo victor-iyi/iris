@@ -9,6 +9,8 @@ fn main() -> Result<()> {
   // Download (if it doesn't exist) and load iris dataframe.
   let df_lazy = load_data(Some(&path))?;
 
+  // TODO: Perform operations here...
+
   // Execute all lazy operations.
   let mut df = df_lazy.collect()?;
   dbg!(&df);
