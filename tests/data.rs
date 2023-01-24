@@ -1,9 +1,9 @@
-use iris::load_data;
+use iris::data::load_data;
 use polars::prelude::*;
 use std::path::Path;
 
 // Load data into `DataFrame`.
-fn load_df() -> DataFrame {
+pub fn load_df() -> DataFrame {
   load_data(Some(Path::new("data/iris.csv")))
     .unwrap()
     .collect()
