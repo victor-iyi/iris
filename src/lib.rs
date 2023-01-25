@@ -1,4 +1,4 @@
-use ndarray::prelude::*;
+use ndarray::Array2;
 use polars::prelude::*;
 
 pub mod data;
@@ -22,11 +22,19 @@ impl Data {
   }
 }
 
-impl From<DataFrame> for Data {
-  fn from(df: DataFrame) -> Self {
+impl TryFrom<DataFrame> for Data {
+  type Error = PolarsError;
+  fn try_from(df: DataFrame) -> Result<Self, Self::Error> {
+    Self::try_from(&df)
+  }
+}
+
+impl TryFrom<&DataFrame> for Data {
+  type Error = PolarsError;
+  fn try_from(df: &DataFrame) -> Result<Self, Self::Error> {
     let names = df.get_column_names_owned();
-    let data = df.to_ndarray::<Float64Type>().unwrap();
-    Self { names, data }
+    let data = df.to_ndarray::<Float64Type>()?;
+    Ok(Self { names, data })
   }
 }
 
