@@ -38,3 +38,10 @@ fn test_target_data() {
   assert_eq!(target.names, &["species"]);
   assert_eq!(target.data.shape(), [150, 1]);
 }
+
+#[test]
+fn test_data() {
+  let df = get_target_df();
+  let target = Data::try_from(&df);
+  assert!(target.is_ok());
+}

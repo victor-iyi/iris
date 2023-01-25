@@ -22,11 +22,19 @@ impl Data {
   }
 }
 
-impl From<DataFrame> for Data {
-  fn from(df: DataFrame) -> Self {
-    let names = df.get_column_names_owned();
-    let data = df.to_ndarray::<Float64Type>().unwrap();
-    Self { names, data }
+impl TryFrom<DataFrame> for Data {
+  type Error = PolarsError;
+  fn try_from(value: DataFrame) -> Result<Self, Self::Error> {
+    Self::try_from(&value)
+  }
+}
+
+impl TryFrom<&DataFrame> for Data {
+  type Error = PolarsError;
+  fn try_from(value: &DataFrame) -> Result<Self, Self::Error> {
+    let names = value.get_column_names_owned();
+    let data = value.to_ndarray::<Float64Type>()?;
+    Ok(Self { names, data })
   }
 }
 
