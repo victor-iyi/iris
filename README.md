@@ -7,6 +7,9 @@
 
 # Iris
 
+[![CI](https://github.com/victor-iyi/iris/actions/workflows/ci.yml/badge.svg)](https://github.com/victor-iyi/iris/actions/workflows/ci.yml)
+[![pre-commit.ci status](https://results.pre-commit.ci/badge/github/victor-iyi/iris/main.svg)](https://results.pre-commit.ci/latest/github/victor-iyi/iris/main)
+
 Experiment to test loading and processing iris dataset in Rust and using the
 processed data in Python for Machine Learning tasks.
 
