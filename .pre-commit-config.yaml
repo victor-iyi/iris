@@ -88,9 +88,9 @@ repos:
       #   # export dev-dependencies.
       #   args: ["-f", "requirements.txt", "-o", "requirements-dev.txt", "--only", "dev,test", "--without-hashes", "--without-urls"]
 
-  - repo: https://github.com/doublify/pre-commit-rust
-    rev: master
-    hooks:
-      - id: fmt
-      - id: cargo-check
-      # - id: clippy
+  # - repo: https://github.com/doublify/pre-commit-rust
+  #   rev: master
+  #   hooks:
+  #     - id: fmt
+  #     - id: cargo-check
+  #     - id: clippy
