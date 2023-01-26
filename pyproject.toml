@@ -87,4 +87,3 @@ disallow_untyped_decorators = false
 reportOptionalCall = "none"
 reportGeneralTypeIssues = "none"
 reportOptionalMemberAccess = "none"
-
