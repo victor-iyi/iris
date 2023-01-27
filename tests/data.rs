@@ -1,19 +1,11 @@
-use iris::data::load_data;
 use polars::prelude::*;
-use std::path::Path;
 
-// Load data into `DataFrame`.
-pub fn load_df() -> DataFrame {
-  load_data(Some(Path::new("data/iris.csv")))
-    .unwrap()
-    .collect()
-    .unwrap()
-}
+mod utils;
 
 /// Test the dataframe has the correct fields & schema.
 #[test]
 fn test_load_data_schema() {
-  let df = load_df();
+  let df = utils::load_df();
 
   let fields = [
     Field::new("sepal_length", DataType::Float64),
@@ -31,7 +23,7 @@ fn test_load_data_schema() {
 /// Test the dataframe has the correct shape.
 #[test]
 fn test_load_data_shape() {
-  let df = load_df();
+  let df = utils::load_df();
 
   assert_eq!(df.shape(), (150, 5));
 }
