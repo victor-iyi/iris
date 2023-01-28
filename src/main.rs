@@ -37,8 +37,14 @@ fn train() -> Result<()> {
   println!("Features: {:?}", features.shape());
   println!("Target: {:?}", target.shape());
 
-  let dataset =
-    Dataset::new(features, target).with_feature_names(feature_names.to_owned());
+  let dataset = Dataset::new(features, target)
+    .with_feature_names(feature_names.to_owned())
+    .map_targets(|t| match t {
+      0 => "setosa",
+      1 => "versicolor",
+      2 => "virginica",
+      _ => unreachable!(),
+    });
   dbg!(&dataset);
 
   let tree = DecisionTree::params()
