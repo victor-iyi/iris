@@ -13,15 +13,17 @@ fn main() -> Result<()> {
 
   // Execute all lazy operations.
   let df = df_lazy.collect()?;
+  let shuffled = df.sample_frac(1., false, true, None)?;
+  dbg!(&shuffled);
   dbg!(&df);
 
   // let column_names = df.get_column_names_owned();
   let column_names = &df.get_column_names();
-  let features = Data::new(&df.select(&column_names[0..4])?);
+  let features = Data::try_from(&df.select(&column_names[0..4])?)?;
   dbg!(&features.names);
   dbg!(&features.data.shape());
 
-  let target = Data::new(&df.select(&[column_names[4]])?);
+  let target = Data::try_from(&df.select(&[column_names[4]])?)?;
   dbg!(&target.names);
   dbg!(&target.data.shape());
 
