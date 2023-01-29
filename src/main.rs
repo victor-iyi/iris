@@ -18,6 +18,7 @@ fn train() -> Result<()> {
     .sample_frac(1., false, true, Some(42))?;
   println!("{:?}", df);
 
+  // Names of columns in dataframe.
   let colum_names = df.get_column_names();
   let num_features = colum_names.len() - 1;
 
@@ -28,15 +29,21 @@ fn train() -> Result<()> {
   println!("\nFeatures({}): {:?}", num_features, feature_names);
   println!("Target: {}", target_name);
 
+  // Create ndarray data from dataframe.
   let data = df.to_ndarray::<Float64Type>()?;
 
-  let features = data.slice(s![.., ..num_features]).to_owned();
+  // Split data into features & target.
+  let features = data
+    .slice(s![.., ..num_features])
+    .as_standard_layout()
+    .to_owned();
   let target = data.column(num_features).map(|x| x.to_owned() as usize);
 
   println!("Data: {:?}", data.shape());
   println!("Features: {:?}", features.shape());
   println!("Target: {:?}", target.shape());
 
+  // Create dataset from features & target.
   let dataset = Dataset::new(features, target)
     .with_feature_names(feature_names.to_owned())
     .map_targets(|t| match t {
@@ -47,11 +54,28 @@ fn train() -> Result<()> {
     });
   dbg!(&dataset);
 
+  // Split into train & validation set.
+  let (train, valid) = dataset.split_with_ratio(0.9);
+
+  // Train the model.
   let tree = DecisionTree::params()
     .split_quality(SplitQuality::Gini)
-    .fit(&dataset)
-    .unwrap();
+    .fit(&train)?;
   dbg!(&tree);
+
+  // Make prediction.
+  let pred = tree.predict(&valid);
+  println!("Ground truth: {:?}", valid.targets().to_vec());
+  println!("Predicted: {:?}", pred.to_vec());
+
+  // Confusion matrix.
+  let cm = pred.confusion_matrix(&valid)?;
+  println!("{:?}", cm);
+
+  // Accuracy.
+  println!("Acc: {}", cm.accuracy());
+  println!("Precision: {} | Recall: {}", cm.precision(), cm.recall());
+  println!("Correlation coeffient: {}", cm.mcc());
 
   // Save the trained model to a file.
   File::create("images/iris.tex")?
@@ -94,9 +118,9 @@ fn process() -> Result<()> {
 }
 
 fn main() -> Result<()> {
-  train()?;
-
   // process()?;
+
+  train()?;
 
   Ok(())
 }
