@@ -10,10 +10,7 @@ use std::path::Path;
 // Load data into `DataFrame`.
 #[allow(dead_code)]
 pub fn load_df() -> DataFrame {
-  load_data(Some(Path::new("data/iris.csv")))
-    .unwrap()
-    .collect()
-    .unwrap()
+  load_data(Some(Path::new("data/iris.csv"))).unwrap()
 }
 
 #[allow(dead_code)]

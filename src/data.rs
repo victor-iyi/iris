@@ -3,14 +3,14 @@
 // This software is released under the MIT License.
 // https://opensource.org/licenses/MIT
 
-use eyre::Result;
+use anyhow::Result;
 use polars::prelude::*;
-use reqwest::blocking::Client;
+use reqwest::{blocking::Client, IntoUrl};
 
 use std::{fs::File, io::Cursor, path::Path};
 
 /// Save dataframe to disk.
-pub fn save_df(df: &mut DataFrame, path: &Path) -> Result<()> {
+pub fn save_df(df: &mut DataFrame, path: &Path) -> PolarsResult<()> {
   if !path.exists() {
     // See if parent folder exists.
     let parent = path.parent().unwrap();
@@ -32,7 +32,35 @@ pub fn save_df(df: &mut DataFrame, path: &Path) -> Result<()> {
 
 /// Load Iris dataset into a dataframe from file path if given, otherwise,
 /// download it.
-pub fn load_data(path: Option<&Path>) -> Result<LazyFrame> {
+pub fn load_data(path: Option<&Path>) -> Result<DataFrame> {
+  // Overwrite the "species" schema.
+  let fields = [Field::new("species", DataType::Categorical(None))];
+  let schema = Schema::from(fields.into_iter());
+
+  let df = match path {
+    // Load data from file (if it exists).
+    Some(p) if p.is_file() => {
+      println!("Loading data from {}", p.display());
+
+      CsvReader::from_path(p)?
+        .has_header(true)
+        .with_dtypes(Some(&schema))
+        .finish()?
+    }
+    // Download data.
+    _ => {
+      println!("Downloading data...");
+
+      download_as_df("https://j.mp/iriscsv", Some(&schema))?
+    }
+  };
+
+  Ok(df)
+}
+
+/// Load Iris dataset into a lazy dataframe from file path if given, otherwise,
+/// download it.
+pub fn load_lazy_data(path: Option<&Path>) -> Result<LazyFrame> {
   // Overwrite the "species" schema.
   let fields = [Field::new("species", DataType::Categorical(None))];
   let schema = Schema::from(fields.into_iter());
@@ -51,20 +79,30 @@ pub fn load_data(path: Option<&Path>) -> Result<LazyFrame> {
     _ => {
       println!("Downloading data...");
 
-      let data: Vec<u8> = Client::new()
-        .get("https://j.mp/iriscsv")
-        .send()?
-        .text()?
-        .bytes()
-        .collect();
-
-      CsvReader::new(Cursor::new(data))
-        .has_header(true)
-        .with_dtypes(Some(&schema))
-        .finish()?
-        .lazy()
+      download_as_df("https://j.mp/iriscsv", Some(&schema))?.lazy()
     }
   };
+
+  Ok(df)
+}
+
+/// Download data from a given URL.
+fn download<U: IntoUrl>(url: U) -> Result<Vec<u8>> {
+  let data: Vec<u8> = Client::new().get(url).send()?.text()?.bytes().collect();
+
+  Ok(data)
+}
+
+fn download_as_df<'a, U: IntoUrl>(
+  url: U,
+  schema: Option<&'a Schema>,
+) -> Result<DataFrame> {
+  let data = download(url)?;
+
+  let df = CsvReader::new(Cursor::new(data))
+    .has_header(true)
+    .with_dtypes(schema)
+    .finish()?;
 
   Ok(df)
 }

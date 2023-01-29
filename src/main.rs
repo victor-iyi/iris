@@ -1,4 +1,4 @@
-use eyre::Result;
+use anyhow::Result;
 
 use ndarray::prelude::*;
 use polars::prelude::*;
@@ -11,11 +11,15 @@ use std::{fs::File, io::Write, path::Path};
 use iris::{data, Data};
 
 ///  Train a DecisionTree model on Iris data.
+#[allow(unused)]
 fn train() -> Result<()> {
   // Load dataframe.
-  let df = data::load_data(Some(Path::new("data/iris.csv")))?
-    .collect()?
-    .sample_frac(1., false, true, Some(42))?;
+  let df = data::load_data(Some(Path::new("data/iris.csv")))?.sample_frac(
+    1.,
+    false,
+    true,
+    Some(42),
+  )?;
   println!("{:?}", df);
 
   // Names of columns in dataframe.
@@ -24,7 +28,7 @@ fn train() -> Result<()> {
 
   // Feature & target names.
   let feature_names = &colum_names[0..num_features];
-  let target_name = &colum_names[num_features];
+  let target_name = &*colum_names[num_features];
 
   println!("\nFeatures({}): {:?}", num_features, feature_names);
   println!("Target: {}", target_name);
@@ -37,7 +41,7 @@ fn train() -> Result<()> {
     .slice(s![.., ..num_features])
     .as_standard_layout()
     .to_owned();
-  let target = data.column(num_features).map(|x| x.to_owned() as usize);
+  let target = data.column(num_features).map(|x| *x as usize);
 
   println!("Data: {:?}", data.shape());
   println!("Features: {:?}", features.shape());
@@ -85,42 +89,39 @@ fn train() -> Result<()> {
 }
 
 /// Load and process the Iris data.
-#[allow(dead_code)]
+#[allow(unused)]
 fn process() -> Result<()> {
   // Path to dataset.
   let path = Path::new("data/iris.csv");
 
   // Download (if it doesn't exist) and load iris dataframe.
-  let df_lazy = data::load_data(Some(&path))?;
+  let mut df = data::load_data(Some(&path))?;
 
-  // TODO: Perform operations here...
-
-  // Execute all lazy operations.
-  let mut df = df_lazy.collect()?;
   let shuffled = df.sample_frac(1., false, true, None)?;
   dbg!(&shuffled);
   dbg!(&df);
 
-  // let column_names = df.get_column_names_owned();
-  let column_names = &df.get_column_names();
-  let features = Data::try_from(&df.select(&column_names[0..4])?)?;
+  let column_names = df.get_column_names();
+  let num_features = column_names.len() - 1;
+
+  let features = Data::try_from(&df.select(&column_names[..num_features])?)?;
   dbg!(&features.names);
   dbg!(&features.data.shape());
 
-  let target = Data::try_from(&df.select(&[column_names[4]])?)?;
+  let target = Data::try_from(&df.select(&column_names[num_features..])?)?;
   dbg!(&target.names);
   dbg!(&target.data.shape());
 
   // Save dataframe to disk.
-  data::save_df(&mut df, &path).unwrap();
+  data::save_df(&mut df, &path)?;
 
   Ok(())
 }
 
 fn main() -> Result<()> {
-  // process()?;
+  process()?;
 
-  train()?;
+  // train()?;
 
   Ok(())
 }
