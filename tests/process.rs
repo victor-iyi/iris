@@ -17,5 +17,5 @@ fn test_pre_process() {
     feature_names,
     ["sepal_length", "sepal_width", "petal_length", "petal_width"]
   );
-  assert_eq!(target_values, ["setosa", "versicolor", "verginica"]);
+  assert_eq!(target_values, ["setosa", "versicolor", "virginica"]);
 }

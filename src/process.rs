@@ -19,20 +19,20 @@ use polars::prelude::*;
 /// # use anyhow::Result;
 /// # fn main() -> Result<()> {
 /// # use std::path::Path;
-/// # use iris::{data::load_data, train::pre_process};
+/// # use iris::{data::load_data, process::pre_process};
 /// #
 /// # let df = load_data(Some(Path::new("data/iris.csv")))?;
 /// let (data, feature_names, target_values) = pre_process(&df)?;
 ///
 /// assert_eq!(data.shape(), [150, 5]);
 /// assert_eq!(feature_names, ["sepal_length", "sepal_width", "petal_length", "petal_width"]);
-/// assert_eq!(target_values, ["setosa", "versicolor", "verginica"]);
+/// assert_eq!(target_values, ["setosa", "versicolor", "virginica"]);
 ///
 /// # Ok(())
 /// # }
 /// ```
-pub fn pre_process(
-  df: &DataFrame,
+pub fn pre_process<'a>(
+  df: &'a DataFrame,
 ) -> Result<(
   ArrayBase<OwnedRepr<f64>, Dim<[usize; 2]>>,
   Vec<&str>,
@@ -44,14 +44,17 @@ pub fn pre_process(
 
   // Get the list of feature names.
   let feature_names = &column_names[..num_features];
-  let target_name = &*column_names[num_features];
-  // Get the list of target values.
-  let target_values = ["setosa", "versicolor", "verginica"];
 
-  let unique = df
-    .select(&[target_name])?
-    .unique(Some(&[target_name.to_owned()]), UniqueKeepStrategy::First)?;
-  dbg!(&unique);
+  // Get list of unique species.
+  // let target_name = &*column_names[num_features];
+  // let species = df.column(target_name)?.unique()?;
+  // let target_values: Vec<String> = (0..species.len())
+  //   .map(|i| species.get(i).unwrap().to_string().replace("\"", ""))
+  //   .collect();
+
+  // Get the list of target values.
+  let target_values = ["setosa", "versicolor", "virginica"];
+  dbg!(&target_values);
 
   // Convert dataframe into ndarray.
   let data = df.to_ndarray::<Float64Type>()?;

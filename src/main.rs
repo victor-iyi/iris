@@ -11,7 +11,8 @@ fn main() -> Result<()> {
   let (data, feature_names, target_values) = iris::process::pre_process(&df)?;
 
   // Train data on DecisionTree model.
-  let model = iris::train::train(&data, &feature_names, &target_values)?;
+  let v: Vec<&str> = target_values.iter().map(|s| s.as_ref()).collect();
+  let model = iris::train::train(&data, &feature_names, &v)?;
   // dbg!(&model);
 
   // Save the trained model to a file.
