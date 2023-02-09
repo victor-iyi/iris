@@ -1,7 +1,12 @@
+use anyhow::Result;
 use ndarray::prelude::*;
 use polars::prelude::*;
 
+use std::path::Path;
+
 pub mod data;
+pub mod process;
+pub mod train;
 
 #[derive(Clone, Default)]
 pub struct Dataset {
@@ -119,4 +124,29 @@ impl std::fmt::Debug for Data {
       .field("data", &self.data)
       .finish()
   }
+}
+
+/// Load and process the Iris data.
+pub fn process(df: &mut DataFrame, path: Option<&Path>) -> Result<()> {
+  // Shuffle dataframe. (uses 2x memory).
+  let shuffled = df.sample_frac(1., false, true, None)?;
+  dbg!(&shuffled);
+
+  let column_names = df.get_column_names();
+  let num_features = column_names.len() - 1;
+
+  let features = Data::try_from(&df.select(&column_names[..num_features])?)?;
+  dbg!(&features.names);
+  dbg!(&features.data.shape());
+
+  let target = Data::try_from(&df.select(&column_names[num_features..])?)?;
+  dbg!(&target.names);
+  dbg!(&target.data.shape());
+
+  // Save dataframe to disk.
+  if let Some(p) = path {
+    data::save_df(df, &p)?;
+  }
+
+  Ok(())
 }

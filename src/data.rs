@@ -93,6 +93,7 @@ fn download<U: IntoUrl>(url: U) -> Result<Vec<u8>> {
   Ok(data)
 }
 
+/// Downlad data from URL and load into a DataFrame.
 fn download_as_df<'a, U: IntoUrl>(
   url: U,
   schema: Option<&'a Schema>,
