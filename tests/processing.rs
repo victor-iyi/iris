@@ -10,7 +10,11 @@ mod utils;
 #[test]
 fn test_features_data() {
   let df = utils::get_features_df();
-  let features = Data::try_from(&df).unwrap();
+
+  let features = Data::try_from(&df);
+  assert!(features.is_ok());
+  let features = features.unwrap();
+
   assert_eq!(
     features.names,
     &["sepal_length", "sepal_width", "petal_length", "petal_width"]
@@ -21,7 +25,11 @@ fn test_features_data() {
 #[test]
 fn test_target_data() {
   let df = utils::get_target_df();
-  let target = Data::try_from(&df).unwrap();
+
+  let target = Data::try_from(&df);
+  assert!(target.is_ok());
+  let target = target.unwrap();
+
   assert_eq!(target.names, &["species"]);
   assert_eq!(target.data.shape(), [150, 1]);
 }
@@ -46,7 +54,9 @@ fn test_data_new() {
 #[test]
 fn test_dataset() {
   let df = utils::load_df();
-  let ds = Dataset::try_from(&df).unwrap();
+  let ds = Dataset::try_from(&df);
+  assert!(ds.is_ok());
+  let ds = ds.unwrap();
 
   assert_eq!(
     ds.features().names(),
