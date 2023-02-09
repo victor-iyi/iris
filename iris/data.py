@@ -15,7 +15,6 @@ def load_data(path: str | Path) -> pl.LazyFrame:
         explicit call of `.collect()` to turn into a `DataFrame` object.
 
     """
-
     if isinstance(path, str):
         path = Path(path)
 
