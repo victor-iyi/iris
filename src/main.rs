@@ -1,127 +1,22 @@
 use anyhow::Result;
 
-use ndarray::prelude::*;
-use polars::prelude::*;
-
-use linfa::prelude::*;
-use linfa_trees::{DecisionTree, SplitQuality};
-
 use std::{fs::File, io::Write, path::Path};
 
-use iris::{data, Data};
+fn main() -> Result<()> {
+  // Load or download data into a DataFrame object.
+  let path = Path::new("data/iris.csv");
+  let df = iris::data::load_data(Some(path))?;
 
-///  Train a DecisionTree model on Iris data.
-#[allow(unused)]
-fn train() -> Result<()> {
-  // Load dataframe.
-  let df = data::load_data(Some(Path::new("data/iris.csv")))?.sample_frac(
-    1.,
-    false,
-    true,
-    Some(42),
-  )?;
-  println!("{:?}", df);
+  // Process dataframe.
+  let (data, feature_names, target_values) = iris::process::pre_process(&df)?;
 
-  // Names of columns in dataframe.
-  let colum_names = df.get_column_names();
-  let num_features = colum_names.len() - 1;
-
-  // Feature & target names.
-  let feature_names = &colum_names[0..num_features];
-  let target_name = &*colum_names[num_features];
-
-  println!("\nFeatures({}): {:?}", num_features, feature_names);
-  println!("Target: {}", target_name);
-
-  // Create ndarray data from dataframe.
-  let data = df.to_ndarray::<Float64Type>()?;
-
-  // Split data into features & target.
-  let features = data
-    .slice(s![.., ..num_features])
-    .as_standard_layout()
-    .to_owned();
-  let target = data.column(num_features).map(|x| *x as usize);
-
-  println!("Data: {:?}", data.shape());
-  println!("Features: {:?}", features.shape());
-  println!("Target: {:?}", target.shape());
-
-  // Create dataset from features & target.
-  let dataset = Dataset::new(features, target)
-    .with_feature_names(feature_names.to_owned())
-    .map_targets(|t| match t {
-      0 => "setosa",
-      1 => "versicolor",
-      2 => "virginica",
-      _ => unreachable!(),
-    });
-  dbg!(&dataset);
-
-  // Split into train & validation set.
-  let (train, valid) = dataset.split_with_ratio(0.9);
-
-  // Train the model.
-  let tree = DecisionTree::params()
-    .split_quality(SplitQuality::Gini)
-    .fit(&train)?;
-  dbg!(&tree);
-
-  // Make prediction.
-  let pred = tree.predict(&valid);
-  println!("Ground truth: {:?}", valid.targets().to_vec());
-  println!("Predicted: {:?}", pred.to_vec());
-
-  // Confusion matrix.
-  let cm = pred.confusion_matrix(&valid)?;
-  println!("{:?}", cm);
-
-  // Accuracy.
-  println!("Acc: {}", cm.accuracy());
-  println!("Precision: {} | Recall: {}", cm.precision(), cm.recall());
-  println!("Correlation coeffient: {}", cm.mcc());
+  // Train data on DecisionTree model.
+  let model = iris::train::train(&data, &feature_names, &target_values)?;
+  // dbg!(&model);
 
   // Save the trained model to a file.
   File::create("images/iris.tex")?
-    .write_all(tree.export_to_tikz().with_legend().to_string().as_bytes())?;
-
-  Ok(())
-}
-
-/// Load and process the Iris data.
-#[allow(unused)]
-fn process() -> Result<()> {
-  // Path to dataset.
-  let path = Path::new("data/iris.csv");
-
-  // Download (if it doesn't exist) and load iris dataframe.
-  let mut df = data::load_data(Some(&path))?;
-
-  let shuffled = df.sample_frac(1., false, true, None)?;
-  dbg!(&shuffled);
-  dbg!(&df);
-
-  let column_names = df.get_column_names();
-  let num_features = column_names.len() - 1;
-
-  let features = Data::try_from(&df.select(&column_names[..num_features])?)?;
-  dbg!(&features.names);
-  dbg!(&features.data.shape());
-
-  let target = Data::try_from(&df.select(&column_names[num_features..])?)?;
-  dbg!(&target.names);
-  dbg!(&target.data.shape());
-
-  // Save dataframe to disk.
-  data::save_df(&mut df, &path)?;
-
-  Ok(())
-}
-
-fn main() -> Result<()> {
-  process()?;
-
-  // train()?;
+    .write_all(model.export_to_tikz().with_legend().to_string().as_bytes())?;
 
   Ok(())
 }
