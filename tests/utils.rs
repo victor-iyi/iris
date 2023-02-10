@@ -2,20 +2,19 @@
 //
 // This software is released under the MIT License.
 // https://opensource.org/licenses/MIT
+#![allow(dead_code)]
 
 use linfa_trees::DecisionTree;
 use polars::prelude::*;
 use std::path::Path;
 
 // Load data into `DataFrame`.
-#[allow(dead_code)]
 pub fn load_df() -> DataFrame {
   let df = iris::load_data(Some(Path::new("data/iris.csv")));
   assert!(df.is_ok());
   df.unwrap()
 }
 
-#[allow(dead_code)]
 pub fn get_features_df() -> DataFrame {
   let df = load_df();
   let column_names = &df.get_column_names();
@@ -25,7 +24,6 @@ pub fn get_features_df() -> DataFrame {
   features.unwrap()
 }
 
-#[allow(dead_code)]
 pub fn get_target_df() -> DataFrame {
   let df = load_df();
   let column_names = &df.get_column_names();
@@ -35,8 +33,6 @@ pub fn get_target_df() -> DataFrame {
   target.unwrap()
 }
 
-/// Process dataframe and retrun trained DecisionTree model.
-#[allow(dead_code)]
 pub fn get_model<'a>(df: &'a DataFrame) -> DecisionTree<f64, &'a str> {
   // Process dataframe to ndarray.
   let processed = iris::process::pre_process(&df);
