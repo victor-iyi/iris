@@ -18,13 +18,31 @@ processed data in Python for Machine Learning tasks.
 Load and process the  iris dataset with `polars`, a fast, Rust library for
 working with `DataFrame`s.
 
-DataFrame is split into features and labels, and labels are converted into
+`DataFrame` is split into features and labels, and labels are converted into
 categorical values. The result will be two dataframe *(one for features & one
 for label)*.
 
-These `DataFrame`s are then converted into an `ndarray`, which will be attempted
-to send to a Python process or an API or just saved to disk in a way that can be
-read natively by Python.
+A `Dataset` object is created with `linfa` and then split into training and
+validation set. The training set is trained on a `linfa_trees::DecisionTree` model,
+and predictions are made on the validation dataset to compute the confusion matrix,
+accuracy, precision, recall and other metrices.
+
+```sh
+classes    | setosa     | versicolor | virginica
+setosa     | 3          | 0          | 0
+versicolor | 0          | 4          | 0
+virginica  | 0          | 1          | 7
+
+Metrics:
+[src/model.rs:75] &cm.accuracy() = 0.93333334
+[src/model.rs:75] &cm.precision() = 0.93333334
+[src/model.rs:75] &cm.recall() = 0.9583333
+[src/model.rs:75] &cm.mcc() = 0.8994902
+```
+
+> In practice, large dataframe can be loaded and processed with Rust's `polars`
+> crate and then saved to disk or a data warehouse which can be cheaply used by
+> python to train or perform other data science tasks.
 
 ## Examples
 
