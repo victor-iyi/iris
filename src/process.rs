@@ -54,7 +54,7 @@ pub fn pre_process<'a>(
 
   // Get the list of target values.
   let target_values = ["setosa", "versicolor", "virginica"];
-  dbg!(&target_values);
+  // dbg!(&target_values);
 
   // Convert dataframe into ndarray.
   let data = df.to_ndarray::<Float64Type>()?;

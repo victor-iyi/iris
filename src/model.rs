@@ -39,27 +39,40 @@ pub fn train<'a>(
     .with_feature_names(feature_names.to_owned())
     .map_targets(|t| target_values[*t])
     .shuffle(&mut rng);
-
   // dbg!(&dataset);
+
+  // Perform K-folding on dataset.
+  // let accuracies = dataset.fold(3).into_iter().map(|(train, valid)| {
+  //   let tree = DecisionTree::params()
+  //     .split_quality(SplitQuality::Gini)
+  //     .fit(&train)
+  //     .unwrap();
+  //
+  //   // Accuracy
+  //   let pred = tree.predict(&valid);
+  //   let cm = pred.confusion_matrix(&valid).unwrap();
+  //   cm.accuracy()
+  // });
+  // dbg!(&accuracies);
 
   // Split into train & validation set.
   let (train, valid) = dataset.split_with_ratio(0.9);
+  // dbg!(&valid, &train);
 
   let tree = DecisionTree::params()
     .split_quality(SplitQuality::Gini)
     .fit(&train)?;
 
   let pred = tree.predict(&valid);
-  println!("Ground truth: {:?}", valid.targets().to_vec());
-  println!("Predicted: {:?}", pred.to_vec());
+  // println!("Ground truth: {:?}", valid.targets().to_vec());
+  // println!("Predicted: {:?}", pred.to_vec());
 
   let cm = pred.confusion_matrix(&valid)?;
   println!("{cm:?}");
 
-  // Accuracy
-  println!("Accuracy: {}", cm.accuracy());
-  println!("Precision: {} | Recall: {}", cm.precision(), cm.recall());
-  println!("Correlation coefficient: {}", cm.mcc());
+  // Debug metrics.
+  println!("Metrics:");
+  dbg!(&cm.accuracy(), &cm.precision(), &cm.recall(), &cm.mcc());
 
   Ok(tree)
 }

@@ -1,4 +1,3 @@
-use iris::process::pre_process;
 mod utils;
 
 #[test]
@@ -7,7 +6,7 @@ fn test_pre_process() {
   let df = utils::load_df();
 
   // Pre-process dataframe.
-  let processed = pre_process(&df);
+  let processed = iris::pre_process(&df);
   assert!(processed.is_ok());
 
   let (data, feature_names, target_values) = processed.unwrap();

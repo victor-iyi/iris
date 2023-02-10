@@ -12,8 +12,13 @@ fn main() -> Result<()> {
 
   // Train data on DecisionTree model.
   let v: Vec<&str> = target_values.iter().map(|s| s.as_ref()).collect();
-  let model = iris::train::train(&data, &feature_names, &v)?;
+  let model = iris::model::train(&data, &feature_names, &v)?;
   // dbg!(&model);
+  println!("\nModel characteristics:");
+  dbg!(&model.max_depth());
+  dbg!(&model.num_leaves());
+  dbg!(&model.feature_importance());
+  dbg!(&model.relative_impurity_decrease());
 
   // Save the trained model to a file.
   File::create("images/iris.tex")?
