@@ -55,6 +55,12 @@ pub fn pre_process<'a>(
   // Get the list of target values.
   let target_values = ["setosa", "versicolor", "virginica"];
   // dbg!(&target_values);
+  // let species_arr = df.column("species")?.utf8()?.to_owned();
+  // let species_vec: Vec<String> = Vec::from(&species_arr)
+  //   .iter()
+  //   .map(|s| s.unwrap_or_default().to_string())
+  //   .collect();
+  // dbg!(&species_vec);
 
   // Convert dataframe into ndarray.
   let data = df.to_ndarray::<Float64Type>()?;

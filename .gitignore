@@ -117,6 +117,5 @@ Cargo.lock
 
 # project
 data/
-examples/playground.ipynb
 
 images/
